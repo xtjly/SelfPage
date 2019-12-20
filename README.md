@@ -1,4 +1,4 @@
-# SelfPage [![Build Status](https://travis-ci.org/facebook/infer.svg?branch=master)](https://travis-ci.org/facebook/infer)
+# SelfPage [![目标框架](https://travis-ci.org/facebook/infer.svg?branch=master)](https://travis-ci.org/facebook/infer)
 
 服务端接口文档描述
 
