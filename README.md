@@ -1,4 +1,4 @@
-# SelfPage 
+# `SelfPage` ![项目类型](https://img.shields.io/badge/项目类型-类库-brightgreen.svg?style=plastic)  ![目标框架](https://img.shields.io/badge/目标框架-.NetCore%202.2-brightgreen.svg?style=plastic)
 
 服务端接口文档描述
 
