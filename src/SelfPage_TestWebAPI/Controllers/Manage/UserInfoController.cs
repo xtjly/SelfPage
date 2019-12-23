@@ -9,6 +9,7 @@ namespace SelfPage_TestWebAPI.Controllers.Manage
     public class UserInfoController : BaseController
     {
         [HttpGet("help")]
+        [Route("")]
         [AllowAnonymous]
         public string GetHelp()
         {

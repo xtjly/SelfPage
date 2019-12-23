@@ -17,9 +17,9 @@ namespace SelfPage_TestWebAPI.Controllers.V2
 
         [HttpPost("iflogok")]
         [DenyAnonymous]
-        public bool IfLogOk([FromBody]long selfUserId, [FromBody]string selfUserName)
+        public bool IfLogOk([FromBody]ReqInfo mode)
         {
-            return ToKen.SelfUserId == selfUserId && ToKen.SelfUserName.Equals(selfUserName);
+            return ToKen.SelfUserId == mode.SelfUserId && ToKen.SelfUserName.Equals(mode.SelfUserName);
         }
 
         [HttpPost("iflogok2")]
