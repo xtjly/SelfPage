@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using SelfPage_Service.Service;
 using SelfPage_TestWebAPI.Filter;
+using System.Collections.Generic;
 using System.Text;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -24,6 +26,7 @@ namespace SelfPage_TestWebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
+            services.AddHttpContextAccessor();
             services.AddAuthentication("Bearer").AddJwtBearer(option =>
             {
                 option.TokenValidationParameters = new TokenValidationParameters
@@ -75,6 +78,23 @@ namespace SelfPage_TestWebAPI
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            //app.UseSelfPage();
+            app.UseSelfPage(
+                //SelfPage配置信息
+                opt =>
+                {
+                    //opt.EndPointPath = "/selfpage";
+                    opt.AddAuthorizationHeader = true;
+                    opt.Groups.AddRange(new List<string> { "manage", "v1", "v2" });
+                }
+                ,
+                //自定义分组策略，默认无分组策略
+                (groupName, controllerInfo) =>
+                {
+                    return controllerInfo.ControllerRoute.StartsWith($"{groupName}");
+                }
+            );
 
             app.UseHttpsRedirection();
             app.UseCors("AllowAllOrigin");
