@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SelfPage_Service.PageInfo
+﻿namespace SelfPage_Service.PageInfo
 {
     /// <summary>
     /// Action信息
