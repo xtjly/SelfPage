@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using SelfPage_TestWebAPI.Filter;
+using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SelfPage_TestWebAPI
 {
@@ -25,7 +23,44 @@ namespace SelfPage_TestWebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddHttpClient();
+            services.AddAuthentication("Bearer").AddJwtBearer(option =>
+            {
+                option.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ValidateAudience = true,
+                    ValidAudience = "SelfPage",
+                    ValidIssuer = "SelfPage",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("selfpage_key"))
+                };
+            });
+            services.AddMvc(
+                option =>
+                {
+                    option.Filters.Add<HttpGlobalExceptionFilter>();
+                }
+                ).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddCors(option =>
+            {
+                option.AddPolicy("AllowAllOrigin", builder =>
+                {
+                    builder.AllowCredentials()
+                    .WithMethods("get", "post")
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin()
+                    //.WithHeaders()
+                    //.WithOrigins()
+                    ;
+                });
+            });
+            services.Configure<FormOptions>(option =>
+            {
+                option.ValueLengthLimit = int.MaxValue;
+                option.MultipartBodyLengthLimit = int.MaxValue;
+                option.MultipartHeadersLengthLimit = int.MaxValue;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,6 +77,9 @@ namespace SelfPage_TestWebAPI
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("AllowAllOrigin");
+            app.UseAuthentication();
+
             app.UseMvc();
         }
     }
