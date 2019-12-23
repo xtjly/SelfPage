@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SelfPage_Service.Service
 {
@@ -37,14 +38,36 @@ namespace SelfPage_Service.Service
 
                 GetEnableControllerTypes(out List<Type> controllerTypes);
                 GetGroupsPageInfo(controllerTypes, out List<ResPageInfo> groupsPageInfo);
+                if (groupsPageInfo == null || groupsPageInfo.Count == 0)
+                {
+                    AdvanceHttpReturn(app, "未找到符合要求的控制器和Action，请检查代码！");
+                }
+
+                if (groupsPageInfo[0].GroupName.Equals("default") && groupsPageInfo[0].Controllers.Count == 0)
+                {
+                    groupsPageInfo.RemoveAt(0);
+                }
+                foreach (ResPageInfo resPageInfo in groupsPageInfo)
+                {
+                    app.MapWhen(
+                        httpContext =>
+                        {
+                            return httpContext.Request.Path.Value.StartsWith($"{pageInfo.EndPointPath}/{resPageInfo.GroupName}");
+                        }
+                        , appBuilder =>
+                        {
+                            appBuilder.Run(async context =>
+                            {
+                                string resStr = $"{resPageInfo.GroupName}"; //todo待完善
+                                await ResponseStr(context.Response, resStr);
+                            });
+                        }
+                    );
+                }
             }
             catch (Exception ex)
             {
-                app.Run(async (context) =>
-                {
-                    context.Response.ContentType = "text/html; charset=UTF-8";
-                    await context.Response.WriteAsync($"使用SelfPage,遇到一个问题。{ex.Message}");
-                });
+                AdvanceHttpReturn(app, $"使用SelfPage,遇到一个问题。<br/>{ex.Message}");
             }
         }
 
@@ -150,6 +173,29 @@ namespace SelfPage_Service.Service
             }
         }
 
+        /// <summary>
+        /// 提前结束请求
+        /// </summary>
+        /// <param name="app"></param>
+        private static void AdvanceHttpReturn(IApplicationBuilder app, string str)
+        {
+            app.Run(async (context) =>
+            {
+                context.Response.ContentType = "text/html; charset=UTF-8";
+                await context.Response.WriteAsync(str);
+            });
+        }
 
+        /// <summary>
+        /// 返回文档信息
+        /// </summary>
+        /// <param name="res"></param>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        private static async Task ResponseStr(HttpResponse res, string str)
+        {
+            res.ContentType = "text/html; charset=utf-8";
+            await res.WriteAsync(str);
+        }
     }
 }
