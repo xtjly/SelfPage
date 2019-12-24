@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -54,9 +53,9 @@ namespace SelfPage_Service.Service
                     app.MapWhen(
                         httpContext =>
                         {
-                            return httpContext.Request.Path.Value.Equals($"{pageInfo.EndPointPath}/{resPageInfo.GroupName}") ||
-                                   httpContext.Request.Path.Value.Equals($"{pageInfo.EndPointPath}/") ||
-                                   httpContext.Request.Path.Value.Equals($"{pageInfo.EndPointPath}");
+                            return httpContext.Request.Path.Value.Equals($"{pageInfo.EndPointPath}/{resPageInfo.GroupName}", StringComparison.CurrentCultureIgnoreCase) ||
+                                   httpContext.Request.Path.Value.Equals($"{pageInfo.EndPointPath}/", StringComparison.CurrentCultureIgnoreCase) ||
+                                   httpContext.Request.Path.Value.Equals($"{pageInfo.EndPointPath}", StringComparison.CurrentCultureIgnoreCase);
                         }
                         , appBuilder =>
                         {
@@ -103,6 +102,7 @@ namespace SelfPage_Service.Service
                         if (method.IsDefined(typeof(HttpGetAttribute)))
                         {
                             ActionInfo action = new ActionInfo();
+                            action.RequestParameters = GetMethodParameters(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
                             string actionRoute = method.GetCustomAttribute<HttpGetAttribute>().Template;
                             action.RequestType = RequestType.HttpGet;
@@ -112,6 +112,7 @@ namespace SelfPage_Service.Service
                         else if (method.IsDefined(typeof(HttpPostAttribute)))
                         {
                             ActionInfo action = new ActionInfo();
+                            action.RequestParameters = GetMethodParameters(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
                             string actionRoute = method.GetCustomAttribute<HttpPostAttribute>().Template;
                             action.RequestType = RequestType.HttpPost;
@@ -144,6 +145,111 @@ namespace SelfPage_Service.Service
                         Controllers = controllerInfos
                     });
                     break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取方法的请求参数信息
+        /// </summary>
+        /// <param name="method">方法</param>
+        /// <returns></returns>
+        private static List<PageInfo.ParameterInfo> GetMethodParameters(MethodInfo method)
+        {
+            List<PageInfo.ParameterInfo> parameterInfos = new List<PageInfo.ParameterInfo>();
+            var parameters = method.GetParameters();
+            foreach (System.Reflection.ParameterInfo parameter in parameters)
+            {
+                GetPropertityInfos(parameter, parameterInfos);
+            }
+            return parameterInfos;
+        }
+
+        /// <summary>
+        /// 找到最终的参数信息
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <param name="parameterInfos"></param>
+        private static void GetPropertityInfos(System.Reflection.ParameterInfo parameter, List<PageInfo.ParameterInfo> parameterInfos)
+        {
+            if (parameter.IsDefined(typeof(FromBodyAttribute)))
+            {
+                GetPropertitys(parameter, parameterInfos, FromEnumType.FromBody);
+            }
+            else
+            {
+                GetPropertitys(parameter, parameterInfos, FromEnumType.FromQuery);
+            }
+        }
+
+        /// <summary>
+        /// 终止条件
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <param name="parameterInfos"></param>
+        private static void GetPropertitys(System.Reflection.ParameterInfo parameter, List<PageInfo.ParameterInfo> parameterInfos, FromEnumType fromEnumType)
+        {
+            if (parameter.ParameterType != typeof(string) && parameter.ParameterType != typeof(int) && parameter.ParameterType != typeof(uint) &&
+                parameter.ParameterType != typeof(long) && parameter.ParameterType != typeof(ulong) && parameter.ParameterType != typeof(byte) &&
+                parameter.ParameterType != typeof(ushort) && parameter.ParameterType != typeof(short) && parameter.ParameterType != typeof(DateTime) &&
+                parameter.ParameterType != typeof(char))
+            {
+                GetTypePropertitys(parameter.ParameterType, parameterInfos, fromEnumType);
+            }
+            else
+            {
+                PageInfo.ParameterInfo parameterInfo = new PageInfo.ParameterInfo();
+                parameterInfo.FromType = fromEnumType;
+                parameterInfo.DataName = parameter.Name.Substring(0, 1).ToLower() + parameter.Name.Substring(1);
+                if (parameter.ParameterType == typeof(string) || parameter.ParameterType == typeof(DateTime))
+                {
+                    parameterInfo.DefaultValue = parameter.DefaultValue?.ToString() ?? "";
+                    parameterInfo.DataType = ParameterDataType.String;
+                }
+                else
+                {
+                    parameterInfo.DefaultValue = parameter.DefaultValue?.ToString() ?? "0";
+                    parameterInfo.DataType = ParameterDataType.Int;
+                }
+                parameterInfos.Add(parameterInfo);
+            }
+        }
+
+        /// <summary>
+        /// 递归获取某个ClassType的所有属性
+        /// </summary>
+        /// <param name="parameterType"></param>
+        /// <param name="parameterInfos"></param>
+        /// <param name="fromEnumType"></param>
+        private static void GetTypePropertitys(Type parameterType, List<PageInfo.ParameterInfo> parameterInfos, FromEnumType fromEnumType)
+        {
+            foreach (PropertyInfo propertityType in parameterType.GetProperties())
+            {
+                if (propertityType.PropertyType != typeof(string) && propertityType.PropertyType != typeof(int) && propertityType.PropertyType != typeof(uint) &&
+                    propertityType.PropertyType != typeof(byte) && propertityType.PropertyType != typeof(long) && propertityType.PropertyType != typeof(ulong) &&
+                    propertityType.PropertyType != typeof(short) && propertityType.PropertyType != typeof(ushort) && propertityType.PropertyType != typeof(DateTime) &&
+                    propertityType.PropertyType != typeof(char))
+                {
+                    GetTypePropertitys(propertityType.PropertyType, parameterInfos, fromEnumType);
+                }
+                else
+                {
+                    PageInfo.ParameterInfo parameterInfo = new PageInfo.ParameterInfo();
+                    parameterInfo.FromType = fromEnumType;
+                    parameterInfo.DataName = propertityType.Name.Substring(0, 1).ToLower() + propertityType.Name.Substring(1);
+                    if (propertityType.PropertyType == typeof(string) || propertityType.PropertyType == typeof(DateTime))
+                    {
+                        //System.Reflection.Assembly.GetExecutingAssembly().CreateInstance("typestring");
+                        //Activator.CreateInstance(typeof());
+                        parameterInfo.DefaultValue = "";
+                        parameterInfo.DataType = ParameterDataType.String;
+                    }
+                    else
+                    {
+                        parameterInfo.DefaultValue = "0";
+                        parameterInfo.DataType = ParameterDataType.Int;
+                    }
+                    parameterInfos.Add(parameterInfo);
                 }
             }
         }
