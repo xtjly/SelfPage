@@ -4,17 +4,12 @@ using System.Collections.Generic;
 
 namespace SelfPage_TestWebAPI.Controllers.Manage
 {
-    /// <summary>
-    /// 用户信息控制器
-    /// </summary>
+
     [Route("manage/userinfo")]
     [ApiController]
     public class UserInfoController : BaseController
     {
-        /// <summary>
-        /// 获取帮助信息
-        /// </summary>
-        /// <returns></returns>
+
         [HttpGet("help")]
         [Route("")]
         [AllowAnonymous]

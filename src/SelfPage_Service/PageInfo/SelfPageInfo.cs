@@ -21,6 +21,10 @@ namespace SelfPage_Service.PageInfo
         /// </summary>
         public bool AddAuthorizationHeader = false;
         /// <summary>
+        /// 是否使用xml注释信息
+        /// </summary>
+        public bool IfUseXmlInfo = false;
+        /// <summary>
         /// 配置引用的Jquery-Url
         /// </summary>
         public string JqueryUrl { get { return "https://cdn.staticfile.org/jquery/2.2.4/jquery.min.js"; } private set { } }

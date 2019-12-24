@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace SelfPage_Service.Service
 {
@@ -82,7 +83,7 @@ namespace SelfPage_Service.Service
             groupsPageInfo = new List<ResPageInfo>();
             List<ControllerInfo> controllerInfos = new List<ControllerInfo>();
 
-            //XmlDocInfo xmlInfo = GetXmlInfo();
+            XmlDocInfo xmlInfo = GetXmlInfo();
             foreach (Type item in controllerTypes)
             {
                 if (item.IsDefined(typeof(RouteAttribute)))
@@ -90,17 +91,17 @@ namespace SelfPage_Service.Service
                     ControllerInfo controller = new ControllerInfo();
                     List<ActionInfo> actionInfos = new List<ActionInfo>();
                     controller.ControllerName = item.Name;
-                    controller.Discribetion = ""; //控制器的描述信息 todo待扩展
+                    controller.Discribetion = GetActionDisCribeTionFromXmlInfo(item.Name, null, xmlInfo, true);
                     string controllerRoute = item.GetCustomAttribute<RouteAttribute>().Template;
                     controller.ControllerRoute = controllerRoute;
                     var methods = item.GetMethods(BindingFlags.Public | BindingFlags.Instance);
                     foreach (var method in methods)
                     {
-                        ActionInfo action = new ActionInfo();
-                        action.DescribeTion = ""; //Action的描述信息 todo待扩展
                         //请求参数信息 todo待扩展 fromquey/frombody...
                         if (method.IsDefined(typeof(HttpGetAttribute)))
                         {
+                            ActionInfo action = new ActionInfo();
+                            action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
                             string actionRoute = method.GetCustomAttribute<HttpGetAttribute>().Template;
                             action.RequestType = RequestType.HttpGet;
                             action.RequestPath = $"/{controllerRoute}/{actionRoute}";
@@ -108,6 +109,8 @@ namespace SelfPage_Service.Service
                         }
                         else if (method.IsDefined(typeof(HttpPostAttribute)))
                         {
+                            ActionInfo action = new ActionInfo();
+                            action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
                             string actionRoute = method.GetCustomAttribute<HttpPostAttribute>().Template;
                             action.RequestType = RequestType.HttpPost;
                             action.RequestPath = $"/{controllerRoute}/{actionRoute}";
@@ -144,12 +147,32 @@ namespace SelfPage_Service.Service
         }
 
         /// <summary>
-        /// 一次性加载控制器和Action注释。| 需要项目生成xml文档在bin\debug，提供注释信息。若无则不提供。
+        /// 一次性加载控制器和Action注释。| 需要项目生成xml文档在bin\Debug\netcoreapp2.2，提供注释信息。若无则不提供。
         /// </summary>
         /// <returns></returns>
         private static XmlDocInfo GetXmlInfo()
         {
-            throw new NotImplementedException();
+            if (pageInfo.IfUseXmlInfo)
+            {
+                string appPath = AppDomain.CurrentDomain.BaseDirectory;
+                string xmlName = $"{AppDomain.CurrentDomain.FriendlyName}.xml";
+                XElement xe = XElement.Load($"{appPath}/{xmlName}");
+                if (xe == null) { return null; }
+                XmlDocInfo xmlDocInfo = new XmlDocInfo();
+                xmlDocInfo.Members = (from member in xe.Element("members").Elements("member")
+                                      where member.Attribute("name").Value.Contains("Controller")
+                                      select new Xml.MemberInfo
+                                      {
+                                          MemberName = member.Attribute("name").Value.Trim(),
+                                          Summary = member.Element("summary").Value.Trim()
+                                      })?.ToList();
+                if (xmlDocInfo.Members == null || xmlDocInfo.Members.Count == 0)
+                {
+                    return null;
+                }
+                return xmlDocInfo;
+            }
+            return null;
         }
 
         /// <summary>
@@ -209,5 +232,44 @@ namespace SelfPage_Service.Service
             res.ContentType = "text/html; charset=utf-8";
             await res.WriteAsync(str);
         }
+
+        /// <summary>
+        /// 从内存查询注释信息
+        /// </summary>
+        /// <param name="controllerName"></param>
+        /// <param name="actionName"></param>
+        /// <param name="xmlDocInfo"></param>
+        /// <returns></returns>
+        private static string GetActionDisCribeTionFromXmlInfo(string controllerName, string actionName, XmlDocInfo xmlInfo, bool isController = false)
+        {
+            if (xmlInfo != null)
+            {
+                try
+                {
+                    if (isController)
+                    {
+                        return (from member in xmlInfo.Members
+                                where member?.MemberName?.EndsWith(controllerName) ?? false
+                                select member?.Summary)?.First();
+                    }
+                    else
+                    {
+                        return (from member in xmlInfo.Members
+                                where member?.MemberName?.Contains($"{controllerName}.{actionName}") ?? false
+                                select member?.Summary)?.First();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+
     }
 }
