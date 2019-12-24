@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SelfPage_Service.PageInfo;
+using SelfPage_Service.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace SelfPage_Service.Service
         public static event Func<string, ControllerInfo, bool> groupPolicy = null;
 
         /// <summary>
-        /// 
+        /// 使用SelfPage服务
         /// </summary>
         /// <param name="app"></param>
         /// <param name="action">配置信息</param>
@@ -80,6 +81,8 @@ namespace SelfPage_Service.Service
         {
             groupsPageInfo = new List<ResPageInfo>();
             List<ControllerInfo> controllerInfos = new List<ControllerInfo>();
+
+            //XmlDocInfo xmlInfo = GetXmlInfo();
             foreach (Type item in controllerTypes)
             {
                 if (item.IsDefined(typeof(RouteAttribute)))
@@ -138,6 +141,15 @@ namespace SelfPage_Service.Service
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// 一次性加载控制器和Action注释。| 需要项目生成xml文档在bin\debug，提供注释信息。若无则不提供。
+        /// </summary>
+        /// <returns></returns>
+        private static XmlDocInfo GetXmlInfo()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
