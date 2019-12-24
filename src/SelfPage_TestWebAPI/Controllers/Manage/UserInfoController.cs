@@ -4,10 +4,12 @@ using System.Collections.Generic;
 
 namespace SelfPage_TestWebAPI.Controllers.Manage
 {
+
     [Route("manage/userinfo")]
     [ApiController]
     public class UserInfoController : BaseController
     {
+
         [HttpGet("help")]
         [Route("")]
         [AllowAnonymous]
@@ -16,6 +18,10 @@ namespace SelfPage_TestWebAPI.Controllers.Manage
             return "this is origin/manage/userinfo api's help return string!";
         }
 
+        /// <summary>
+        /// 获取所有用户信息
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("alluser")]
         [AllowAnonymous]
         public ResResult<List<string>> GetAllUserInfo()

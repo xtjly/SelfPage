@@ -86,6 +86,7 @@ namespace SelfPage_TestWebAPI
                 {
                     //opt.EndPointPath = "/selfpage";
                     opt.AddAuthorizationHeader = true;
+                    opt.IfUseXmlInfo = true;
                     opt.Groups.AddRange(new List<string> { "manage", "v1", "v2" });
                 }
                 ,
