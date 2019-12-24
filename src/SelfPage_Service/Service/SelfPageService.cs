@@ -54,7 +54,9 @@ namespace SelfPage_Service.Service
                     app.MapWhen(
                         httpContext =>
                         {
-                            return httpContext.Request.Path.Value.StartsWith($"{pageInfo.EndPointPath}/{resPageInfo.GroupName}");
+                            return httpContext.Request.Path.Value.Equals($"{pageInfo.EndPointPath}/{resPageInfo.GroupName}") ||
+                                   httpContext.Request.Path.Value.Equals($"{pageInfo.EndPointPath}/") ||
+                                   httpContext.Request.Path.Value.Equals($"{pageInfo.EndPointPath}");
                         }
                         , appBuilder =>
                         {
