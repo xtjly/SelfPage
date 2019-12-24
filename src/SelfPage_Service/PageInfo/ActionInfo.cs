@@ -1,4 +1,6 @@
-﻿namespace SelfPage_Service.PageInfo
+﻿using System.Collections.Generic;
+
+namespace SelfPage_Service.PageInfo
 {
     /// <summary>
     /// Action信息
@@ -17,7 +19,10 @@
         /// Action注释-描述信息
         /// </summary>
         public string DescribeTion = "";
-
+        /// <summary>
+        /// 方法的请求参数信息
+        /// </summary>
+        public List<ParameterInfo> RequestParameters = new List<ParameterInfo>();
     }
 
 }
