@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using SelfPage_Service.PageInfo;
 using SelfPage_Service.Xml;
 using System;
@@ -159,6 +160,8 @@ namespace SelfPage_Service.Service
         private static string GetMethodReturnObjStr(MethodInfo method)
         {
             var type = method.ReturnType;
+            var iso = new IsoDateTimeConverter();
+            iso.DateTimeFormat = "YYYY-MM-DD HH:mm:ss:ms";
             if (type.Name.Equals("Void", StringComparison.CurrentCultureIgnoreCase) || type.Name.Equals("Task", StringComparison.CurrentCultureIgnoreCase))
             {
                 return "";
@@ -170,7 +173,7 @@ namespace SelfPage_Service.Service
                 {
                     return "";
                 }
-                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(realyType));
+                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(realyType), iso);
                 return resJsonStr;
             }
             else
@@ -179,7 +182,7 @@ namespace SelfPage_Service.Service
                 {
                     return "";
                 }
-                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(type));
+                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(type), iso);
                 return resJsonStr;
             }
         }
