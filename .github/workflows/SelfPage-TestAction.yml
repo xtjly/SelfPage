@@ -1,32 +1,41 @@
+#指定Action的名称
 name: SelfPage-测试Action
 
+#指定Action的触发条件。[定时，特定条件等...]
+#这里的触发条件为每次push到master分支
 on:
   push:
     branches: 
       - master
-# 每个jobs->job必须包含runs-on步骤，否则出错。
+
+#指定Action的jobs集合，会按顺序依次执行job
 jobs:
+  #job须包含runs-on步骤,否则出错
+  #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ job //////////////////////////////////////////
   job-1:
     name: job-1
     runs-on: ubuntu-latest
-    # steps->step步骤里面必须使用uses或run，否则出错
-    # uses 可以使用第三方的action
     steps:
-      - name: 第一步，拉取分支。设置环境变量，可设置多个key:value
+      #step须包含uses或run，否则出错
+      #uses可使用第三方action
+      #++++++++++++++++++++++++++ step +++++++++++++++++++++++++++
+      - name: 第一步，拉取master分支
         uses: actions/checkout@master
-        env:
-          SelfPageAuthor: LiuYan
 
-      - name: 第二步，我们使用这些环境变量，通过run步骤执行命令或action
-        run: |
-          echo $SelfPageAuthor
+      #++++++++++++++++++++++++++ step +++++++++++++++++++++++++++
+      #- name: 第二步，uses和run只可用一个，冒号右边有个空格
+      #  uses: 
+      #  run: 
+
+  #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ job //////////////////////////////////////////
   job-2:
     name: job-2
     runs-on: ubuntu-latest
     steps:
       - name: 第一步，设置环境变量，并输出
+        #env若和使用它的step不为同一step则使用无效
+        #这里env和使用使用它的step为同一step，则输出 LiuYan
         env:
           SelfPageAuthor: LiuYan
         run: 
           echo $SelfPageAuthor
-        
