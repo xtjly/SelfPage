@@ -1,0 +1,18 @@
+name: SelfPage-测试Action
+
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  no-things:
+    name: 这是一个空job，用于测试
+    runs-on: [windows]
+    steps:
+      - name: 第一步，设置环境变量，可设置多个key:value
+        env:
+          SelfPageAuthor: LiuYan
+      - name: 第二步，我们使用这些环境变量，通过run步骤执行命令或action
+        run:
+          echo $SelfPageAuthor
