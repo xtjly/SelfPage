@@ -10,11 +10,12 @@ jobs:
     name: 这是一个空job，用于测试。每个job必须包含runs-on步骤，否则出错。
     runs-on: [windows]
     steps:
-      - name: 0. step步骤里面必须使用use和run，否则出错。这里我们使用action拉取master分支代码
+      - name: 0. step步骤里面必须使用use或run，否则出错。这里我们使用action拉取master分支代码
+              第一步，设置环境变量，可设置多个key:value
         uses: actions/checkout@master
-      - name: 第一步，设置环境变量，可设置多个key:value
         env:
           SelfPageAuthor: LiuYan
+
       - name: 第二步，我们使用这些环境变量，通过run步骤执行命令或action
         run:
           echo $SelfPageAuthor
