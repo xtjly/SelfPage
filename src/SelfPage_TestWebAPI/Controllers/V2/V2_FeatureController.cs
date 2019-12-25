@@ -22,6 +22,7 @@ namespace SelfPage_TestWebAPI.Controllers.V2
         public async Task<bool> IfSelf([FromQuery]string selfName)
         {
             return ToKen.SelfUserName.Equals(selfName);
+            //return 1;
         }
 
         /// <summary>
