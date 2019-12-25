@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SelfPage_TestWebAPI.Attribute;
 using SelfPage_TestWebAPI.Mode;
+using System.Threading.Tasks;
 
 namespace SelfPage_TestWebAPI.Controllers.V2
 {
@@ -18,9 +19,9 @@ namespace SelfPage_TestWebAPI.Controllers.V2
         /// <returns></returns>
         [HttpGet("ifself")]
         [DenyAnonymous]
-        public bool IfSelf([FromQuery]string selfName)
+        public async Task<bool> IfSelf([FromQuery]string selfName)
         {
-            return ToKen.SelfUserId.Equals(selfName);
+            return ToKen.SelfUserName.Equals(selfName);
         }
 
         /// <summary>

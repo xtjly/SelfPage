@@ -20,6 +20,6 @@
         /// <summary>
         /// 参数默认值
         /// </summary>
-        public string DefaultValue { get; set; } = "0";
+        public object DefaultValue { get; set; } = null;
     }
 }

@@ -6,6 +6,7 @@
     public enum ParameterDataType
     {
         String = 1,
-        Int = 2
+        Int = 2,
+        Bool = 3
     }
 }

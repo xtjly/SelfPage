@@ -98,11 +98,11 @@ namespace SelfPage_Service.Service
                     var methods = item.GetMethods(BindingFlags.Public | BindingFlags.Instance);
                     foreach (var method in methods)
                     {
-                        //请求参数信息 todo待扩展 fromquey/frombody...
                         if (method.IsDefined(typeof(HttpGetAttribute)))
                         {
                             ActionInfo action = new ActionInfo();
                             action.RequestParameters = GetMethodParameters(method);
+                            action.ReturnJsonStr = GetMethodReturnObjStr(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
                             string actionRoute = method.GetCustomAttribute<HttpGetAttribute>().Template;
                             action.RequestType = RequestType.HttpGet;
@@ -113,6 +113,7 @@ namespace SelfPage_Service.Service
                         {
                             ActionInfo action = new ActionInfo();
                             action.RequestParameters = GetMethodParameters(method);
+                            action.ReturnJsonStr = GetMethodReturnObjStr(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
                             string actionRoute = method.GetCustomAttribute<HttpPostAttribute>().Template;
                             action.RequestType = RequestType.HttpPost;
@@ -147,6 +148,19 @@ namespace SelfPage_Service.Service
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// 获取方法的返回参数信息
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        private static string GetMethodReturnObjStr(MethodInfo method)
+        {
+            var res = method.ReturnParameter;
+            var res2 = method.ReturnType;
+            var res3 = method.ReturnTypeCustomAttributes;
+            return "";
         }
 
         /// <summary>
@@ -192,7 +206,7 @@ namespace SelfPage_Service.Service
             if (parameter.ParameterType != typeof(string) && parameter.ParameterType != typeof(int) && parameter.ParameterType != typeof(uint) &&
                 parameter.ParameterType != typeof(long) && parameter.ParameterType != typeof(ulong) && parameter.ParameterType != typeof(byte) &&
                 parameter.ParameterType != typeof(ushort) && parameter.ParameterType != typeof(short) && parameter.ParameterType != typeof(DateTime) &&
-                parameter.ParameterType != typeof(char))
+                parameter.ParameterType != typeof(char) && parameter.ParameterType != typeof(bool))
             {
                 GetTypePropertitys(parameter.ParameterType, parameterInfos, fromEnumType);
             }
@@ -203,12 +217,16 @@ namespace SelfPage_Service.Service
                 parameterInfo.DataName = parameter.Name.Substring(0, 1).ToLower() + parameter.Name.Substring(1);
                 if (parameter.ParameterType == typeof(string) || parameter.ParameterType == typeof(DateTime))
                 {
-                    parameterInfo.DefaultValue = parameter.DefaultValue?.ToString() ?? "";
-                    parameterInfo.DataType = ParameterDataType.String;
+                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue.ToString()) ? "" : parameter.DefaultValue;
+                }
+                else if (parameter.ParameterType == typeof(bool))
+                {
+                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue.ToString()) ? false : parameter.DefaultValue;
+                    parameterInfo.DataType = ParameterDataType.Bool;
                 }
                 else
                 {
-                    parameterInfo.DefaultValue = parameter.DefaultValue?.ToString() ?? "0";
+                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue.ToString()) ? 0 : parameter.DefaultValue;
                     parameterInfo.DataType = ParameterDataType.Int;
                 }
                 parameterInfos.Add(parameterInfo);
@@ -228,7 +246,7 @@ namespace SelfPage_Service.Service
                 if (propertityType.PropertyType != typeof(string) && propertityType.PropertyType != typeof(int) && propertityType.PropertyType != typeof(uint) &&
                     propertityType.PropertyType != typeof(byte) && propertityType.PropertyType != typeof(long) && propertityType.PropertyType != typeof(ulong) &&
                     propertityType.PropertyType != typeof(short) && propertityType.PropertyType != typeof(ushort) && propertityType.PropertyType != typeof(DateTime) &&
-                    propertityType.PropertyType != typeof(char))
+                    propertityType.PropertyType != typeof(char) && propertityType.PropertyType != typeof(bool))
                 {
                     GetTypePropertitys(propertityType.PropertyType, parameterInfos, fromEnumType);
                 }
@@ -244,9 +262,14 @@ namespace SelfPage_Service.Service
                         parameterInfo.DefaultValue = "";
                         parameterInfo.DataType = ParameterDataType.String;
                     }
+                    else if (propertityType.PropertyType == typeof(bool))
+                    {
+                        parameterInfo.DefaultValue = false;
+                        parameterInfo.DataType = ParameterDataType.Bool;
+                    }
                     else
                     {
-                        parameterInfo.DefaultValue = "0";
+                        parameterInfo.DefaultValue = 0;
                         parameterInfo.DataType = ParameterDataType.Int;
                     }
                     parameterInfos.Add(parameterInfo);
