@@ -161,7 +161,7 @@ namespace SelfPage_Service.Service
         {
             var type = method.ReturnType;
             var iso = new IsoDateTimeConverter();
-            iso.DateTimeFormat = "YYYY-MM-DD HH:mm:ss:ms";
+            iso.DateTimeFormat = "yyyy-MM-dd HH:mm:ss:ms";
             if (type.Name.Equals("Void", StringComparison.CurrentCultureIgnoreCase) || type.Name.Equals("Task", StringComparison.CurrentCultureIgnoreCase))
             {
                 return "";
