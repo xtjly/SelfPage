@@ -4,13 +4,27 @@ on:
   push:
     branches: 
       - master
-
+# 每个job必须包含runs-on步骤，否则出错。
 jobs:
-  no-things:
-    name: 这是一个空job，用于测试。每个job必须包含runs-on步骤，否则出错。
+  job-1:
+    name: job-1
+    runs-on: ubuntu-latest
+    # step步骤里面必须使用use或run，否则出错
+    # uses 可以使用第三方的action
+    steps:
+      - name: 第一步，拉取分支。设置环境变量，可设置多个key:value
+        uses: actions/checkout@master
+        env:
+          SelfPageAuthor: LiuYan
+
+      - name: 第二步，我们使用这些环境变量，通过run步骤执行命令或action
+        run:
+          echo $SelfPageAuthor
+  job-2:
+    name: job-2
     runs-on: ubuntu-latest
     steps:
-      - name: 0. step步骤里面必须使用use或run，否则出错。这里我们使用action拉取master分支代码,第一步，设置环境变量，可设置多个key:value
+      - name: 第一步，拉取分支。设置环境变量，可设置多个key:value
         uses: actions/checkout@master
         env:
           SelfPageAuthor: LiuYan
