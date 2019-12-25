@@ -23,6 +23,10 @@ namespace SelfPage_Service.PageInfo
         /// 方法的请求参数信息
         /// </summary>
         public List<ParameterInfo> RequestParameters = new List<ParameterInfo>();
+        /// <summary>
+        /// 方法的return 对象的json格式字符串
+        /// </summary>
+        public string ReturnJsonStr { get; set; }
     }
 
 }
