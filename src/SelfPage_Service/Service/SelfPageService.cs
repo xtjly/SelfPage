@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SelfPage_Service.PageInfo;
 using SelfPage_Service.Xml;
 using System;
@@ -157,10 +158,30 @@ namespace SelfPage_Service.Service
         /// <returns></returns>
         private static string GetMethodReturnObjStr(MethodInfo method)
         {
-            var res = method.ReturnParameter;
-            var res2 = method.ReturnType;
-            var res3 = method.ReturnTypeCustomAttributes;
-            return "";
+            var type = method.ReturnType;
+            if (type.Name.Equals("Void", StringComparison.CurrentCultureIgnoreCase) || type.Name.Equals("Task", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return "";
+            }
+            else if (type.Name.StartsWith("Task`", StringComparison.CurrentCultureIgnoreCase))
+            {
+                var realyType = type.GenericTypeArguments[0];
+                if (realyType == typeof(string))
+                {
+                    return "";
+                }
+                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(realyType));
+                return resJsonStr;
+            }
+            else
+            {
+                if (type == typeof(string))
+                {
+                    return "";
+                }
+                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(type));
+                return resJsonStr;
+            }
         }
 
         /// <summary>
