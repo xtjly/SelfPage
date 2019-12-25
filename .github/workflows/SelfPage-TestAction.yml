@@ -14,5 +14,5 @@ jobs:
         env:
           SelfPageAuthor: LiuYan
       - name: 第二步，我们使用这些环境变量，通过run步骤执行命令或action
-        run:
+        run: |
           echo $SelfPageAuthor
