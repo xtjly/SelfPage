@@ -24,17 +24,5 @@ namespace SelfPage_Service.PageInfo
         /// 是否使用xml注释信息。 | 需要项目生成xml文档在bin\Debug\netcoreapp2.2，提供注释信息。若无则不提供。
         /// </summary>
         public bool IfUseXmlInfo = false;
-        /// <summary>
-        /// 配置引用的Jquery-Url
-        /// </summary>
-        public string JqueryUrl { get { return "https://cdn.staticfile.org/jquery/2.2.4/jquery.min.js"; } private set { } }
-        /// <summary>
-        /// 配置引用的Js-Url
-        /// </summary>
-        public string JsUrl = "";
-        /// <summary>
-        /// 配置引用的CSS-Url
-        /// </summary>
-        public string CssUrl = "";
     }
 }
