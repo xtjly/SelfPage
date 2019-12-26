@@ -168,15 +168,23 @@ namespace SelfPage_Service.Service
             {
                 return "";
             }
-            else if (type.Name.StartsWith("Task`", StringComparison.CurrentCultureIgnoreCase))
+            else if (type.Name.StartsWith("Task`", StringComparison.CurrentCultureIgnoreCase) ||
+                type.Name.StartsWith("ActionResult`", StringComparison.CurrentCultureIgnoreCase))
             {
                 var realyType = type.GenericTypeArguments[0];
                 if (realyType == typeof(string))
                 {
                     return "";
                 }
-                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(realyType), iso);
-                return resJsonStr;
+                try
+                {
+                    string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(realyType), iso);
+                    return resJsonStr;
+                }
+                catch
+                {
+                    return "";
+                }
             }
             else
             {
@@ -184,8 +192,15 @@ namespace SelfPage_Service.Service
                 {
                     return "";
                 }
-                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(type), iso);
-                return resJsonStr;
+                try
+                {
+                    string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(type), iso);
+                    return resJsonStr;
+                }
+                catch
+                {
+                    return "";
+                }
             }
         }
 
