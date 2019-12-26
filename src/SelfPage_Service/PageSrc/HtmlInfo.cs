@@ -27,7 +27,7 @@ namespace SelfPage_Service.PageSrc
         }}
         .SelfPage-Control {{
             color:black;
-            background:white;
+            background:#98eadfd9;
             font-size:30px;
             margin-top:10px;
         }}
