@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SelfPage_Service.PageInfo;
+using SelfPage_Service.PageSrc;
 using SelfPage_Service.Xml;
 using System;
 using System.Collections.Generic;
@@ -50,6 +51,7 @@ namespace SelfPage_Service.Service
                 {
                     groupsPageInfo.RemoveAt(0);
                 }
+                var realyGroups = groupsPageInfo.GroupBy(item => item.GroupName).Select(group => group.Key).ToList();
                 foreach (ResPageInfo resPageInfo in groupsPageInfo)
                 {
                     app.MapWhen(
@@ -63,7 +65,7 @@ namespace SelfPage_Service.Service
                         {
                             appBuilder.Run(async context =>
                             {
-                                string resStr = $"{resPageInfo.GroupName}"; //todo待完善
+                                string resStr = HtmlInfo.GetHtmlPageInfo(resPageInfo, realyGroups);
                                 await ResponseStr(context.Response, resStr);
                             });
                         }
@@ -106,7 +108,7 @@ namespace SelfPage_Service.Service
                             action.RequestParameters = GetMethodParameters(method);
                             action.ReturnJsonStr = GetMethodReturnObjStr(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
-                            string actionRoute = method.GetCustomAttribute<HttpGetAttribute>().Template;
+                            string actionRoute = method.GetCustomAttribute<HttpGetAttribute>().Template ?? method.GetCustomAttribute<RouteAttribute>().Template;
                             action.RequestType = RequestType.HttpGet;
                             action.RequestPath = $"/{controllerRoute}/{actionRoute}";
                             actionInfos.Add(action);
@@ -117,7 +119,7 @@ namespace SelfPage_Service.Service
                             action.RequestParameters = GetMethodParameters(method);
                             action.ReturnJsonStr = GetMethodReturnObjStr(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
-                            string actionRoute = method.GetCustomAttribute<HttpPostAttribute>().Template;
+                            string actionRoute = method.GetCustomAttribute<HttpPostAttribute>().Template ?? method.GetCustomAttribute<RouteAttribute>().Template;
                             action.RequestType = RequestType.HttpPost;
                             action.RequestPath = $"/{controllerRoute}/{actionRoute}";
                             actionInfos.Add(action);
@@ -166,15 +168,23 @@ namespace SelfPage_Service.Service
             {
                 return "";
             }
-            else if (type.Name.StartsWith("Task`", StringComparison.CurrentCultureIgnoreCase))
+            else if (type.Name.StartsWith("Task`", StringComparison.CurrentCultureIgnoreCase) ||
+                type.Name.StartsWith("ActionResult`", StringComparison.CurrentCultureIgnoreCase))
             {
                 var realyType = type.GenericTypeArguments[0];
                 if (realyType == typeof(string))
                 {
                     return "";
                 }
-                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(realyType), iso);
-                return resJsonStr;
+                try
+                {
+                    string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(realyType), iso);
+                    return resJsonStr;
+                }
+                catch
+                {
+                    return "";
+                }
             }
             else
             {
@@ -182,8 +192,15 @@ namespace SelfPage_Service.Service
                 {
                     return "";
                 }
-                string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(type), iso);
-                return resJsonStr;
+                try
+                {
+                    string resJsonStr = JsonConvert.SerializeObject(Activator.CreateInstance(type), iso);
+                    return resJsonStr;
+                }
+                catch
+                {
+                    return "";
+                }
             }
         }
 
@@ -241,16 +258,16 @@ namespace SelfPage_Service.Service
                 parameterInfo.DataName = parameter.Name.Substring(0, 1).ToLower() + parameter.Name.Substring(1);
                 if (parameter.ParameterType == typeof(string) || parameter.ParameterType == typeof(DateTime))
                 {
-                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue.ToString()) ? "" : parameter.DefaultValue;
+                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue?.ToString()) ? "" : parameter.DefaultValue;
                 }
                 else if (parameter.ParameterType == typeof(bool))
                 {
-                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue.ToString()) ? false : parameter.DefaultValue;
+                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue?.ToString()) ? false : parameter.DefaultValue;
                     parameterInfo.DataType = ParameterDataType.Bool;
                 }
                 else
                 {
-                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue.ToString()) ? 0 : parameter.DefaultValue;
+                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue?.ToString()) ? 0 : parameter.DefaultValue;
                     parameterInfo.DataType = ParameterDataType.Int;
                 }
                 parameterInfos.Add(parameterInfo);
