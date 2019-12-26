@@ -50,6 +50,7 @@ namespace SelfPage_Service.Service
                 {
                     groupsPageInfo.RemoveAt(0);
                 }
+                var realyGroups = groupsPageInfo.GroupBy(item => item.GroupName).Select(group => group.Key).ToList();
                 foreach (ResPageInfo resPageInfo in groupsPageInfo)
                 {
                     app.MapWhen(
@@ -63,6 +64,8 @@ namespace SelfPage_Service.Service
                         {
                             appBuilder.Run(async context =>
                             {
+
+
                                 string resStr = $"{resPageInfo.GroupName}"; //todo待完善
                                 await ResponseStr(context.Response, resStr);
                             });
