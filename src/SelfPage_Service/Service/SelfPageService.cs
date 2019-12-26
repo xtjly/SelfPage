@@ -108,7 +108,7 @@ namespace SelfPage_Service.Service
                             action.RequestParameters = GetMethodParameters(method);
                             action.ReturnJsonStr = GetMethodReturnObjStr(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
-                            string actionRoute = method.GetCustomAttribute<HttpGetAttribute>().Template;
+                            string actionRoute = method.GetCustomAttribute<HttpGetAttribute>().Template ?? method.GetCustomAttribute<RouteAttribute>().Template;
                             action.RequestType = RequestType.HttpGet;
                             action.RequestPath = $"/{controllerRoute}/{actionRoute}";
                             actionInfos.Add(action);
@@ -119,7 +119,7 @@ namespace SelfPage_Service.Service
                             action.RequestParameters = GetMethodParameters(method);
                             action.ReturnJsonStr = GetMethodReturnObjStr(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
-                            string actionRoute = method.GetCustomAttribute<HttpPostAttribute>().Template;
+                            string actionRoute = method.GetCustomAttribute<HttpPostAttribute>().Template ?? method.GetCustomAttribute<RouteAttribute>().Template;
                             action.RequestType = RequestType.HttpPost;
                             action.RequestPath = $"/{controllerRoute}/{actionRoute}";
                             actionInfos.Add(action);
@@ -258,16 +258,16 @@ namespace SelfPage_Service.Service
                 parameterInfo.DataName = parameter.Name.Substring(0, 1).ToLower() + parameter.Name.Substring(1);
                 if (parameter.ParameterType == typeof(string) || parameter.ParameterType == typeof(DateTime))
                 {
-                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue.ToString()) ? "" : parameter.DefaultValue;
+                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue?.ToString()) ? "" : parameter.DefaultValue;
                 }
                 else if (parameter.ParameterType == typeof(bool))
                 {
-                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue.ToString()) ? false : parameter.DefaultValue;
+                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue?.ToString()) ? false : parameter.DefaultValue;
                     parameterInfo.DataType = ParameterDataType.Bool;
                 }
                 else
                 {
-                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue.ToString()) ? 0 : parameter.DefaultValue;
+                    parameterInfo.DefaultValue = string.IsNullOrWhiteSpace(parameter.DefaultValue?.ToString()) ? 0 : parameter.DefaultValue;
                     parameterInfo.DataType = ParameterDataType.Int;
                 }
                 parameterInfos.Add(parameterInfo);
