@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SelfPage_Service.PageInfo;
+using SelfPage_Service.PageSrc;
 using SelfPage_Service.Xml;
 using System;
 using System.Collections.Generic;
@@ -64,9 +65,7 @@ namespace SelfPage_Service.Service
                         {
                             appBuilder.Run(async context =>
                             {
-
-
-                                string resStr = $"{resPageInfo.GroupName}"; //todo待完善
+                                string resStr = HtmlInfo.GetHtmlPageInfo(resPageInfo, realyGroups);
                                 await ResponseStr(context.Response, resStr);
                             });
                         }
