@@ -8,7 +8,14 @@ namespace SelfPage_Service.PageSrc
 {
     public static class HtmlInfo
     {
-        internal static string GetHtmlPageInfo(ResPageInfo resPageInfo, List<string> realyGroups)
+        /// <summary>
+        /// 返回接口文档信息
+        /// </summary>
+        /// <param name="resPageInfo"></param>
+        /// <param name="realyGroups"></param>
+        /// <param name="pageInfo"></param>
+        /// <returns></returns>
+        internal static string GetHtmlPageInfo(ResPageInfo resPageInfo, List<string> realyGroups, SelfPageInfo pageInfo)
         {
             string html = $@"
 <!DOCTYPE html>
@@ -27,16 +34,41 @@ namespace SelfPage_Service.PageSrc
         }}
         .SelfPage-Control {{
             color:black;
-            background:#98eadfd9;
+            background:#f5f5f5cc;
+            border:5px solid #00ffe7e6;
+            border-radius:20px;
             font-size:30px;
-            margin-top:10px;
+            margin:10px;
+            padding:10px;
+        }}
+        .SelfPage-Action{{
+            background: #d9edf775;
+            border: 3px solid #337ab7c4;
+            border-radius: 10px;
+            margin: 10px;
+            padding: 10px;
+            color: #337ab7;
+        }}
+        .SelfPage-Action-Span{{
+            float:right;
+            margin-right:10px;
+            border: 3px solid #8a6d3b;
+            padding:0 5px;
+            color:#795548;
+        }}
+        .SelfPage-Action-Body{{
+            background:#8bc34ac2;
+            margin:10px;
+            padding:10px;
+            color:black;
+            font-size:20px;
         }}
     </style>
 </head>
 <body>
     <canvas id='canvas'style='position:absolute;left:0;top:0;z-index:-1;'></canvas>
-    <div class='form-inline'><select id='SelfPage-Group' class='form-control' ></select></div>
-    <div id='SelfPage-Controllers'>{Div_Controllers_Get(resPageInfo)}</div>
+    <div class='form-inline' style='text-align:center;'><lable style='font-size:50px;font-weight:bold;color:white;'>SelfPage<lable/><select id='SelfPage-Group' class='form-control' style='padding: 0 3%; margin:0px 10px;'></select></div>
+    <div id='SelfPage-Controllers'>{Div_Controllers_Get(resPageInfo, pageInfo)}</div>
 
     
     <script src='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js' integrity='sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa' crossorigin='anonymous'></script>
@@ -184,8 +216,11 @@ namespace SelfPage_Service.PageSrc
         loop();
     </script>
     <script>
-        {Select_Group_Get(resPageInfo, realyGroups)}
+        {Select_Group_Get(resPageInfo, realyGroups, pageInfo)}
+        {Div_Actions_Show(resPageInfo)}        
+        {Div_MethodBody_Show(resPageInfo, pageInfo)}
         
+
     </script>
 </body>
 </html>
@@ -195,19 +230,150 @@ namespace SelfPage_Service.PageSrc
         }
 
         /// <summary>
+        /// 控制Action下的body是否显示，及为执行按钮设置监听 JS
+        /// </summary>
+        /// <param name="resPageInfo"></param>
+        /// <returns></returns>
+        private static string Div_MethodBody_Show(ResPageInfo resPageInfo, SelfPageInfo pageInfo)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($@" $(""div[id^='SelfPage-Bodys-Action']"").hide(); ");
+            int i = 1;
+            resPageInfo.Controllers.ForEach(control =>
+            {
+                int n = 1;
+                control.Actions.ForEach(action =>
+                {
+                    sb.Append($@" 
+                        $('#SelfPage-Action-Span-{n}-Control-{i}').click(function(){{
+                            if($('#SelfPage-Bodys-Action-{n}-Control-{i}').is(':visible')){{ 
+                                $('#SelfPage-Bodys-Action-{n}-Control-{i}').hide();
+                                $('#SelfPage-Action-Span-{n}-Control-{i}').html('打开测试');
+                            }}else{{
+                                $('#SelfPage-Bodys-Action-{n}-Control-{i}').show();
+                                $('#SelfPage-Action-Span-{n}-Control-{i}').html('关闭测试');
+                            }}
+                        }}); 
+                    ");
+                    sb.Append($@" 
+                        $('#SelfPage-ExcuteButton-Action-{n}-Control-{i}').click(function(){{
+                            $.ajax({{
+                                type:'{(action.RequestType == RequestType.HttpGet ? "get" : "post")}',
+                                dataType:'json',
+	                            contentType: 'application/json',
+	                            url: window.origin + '{action.RequestPath}',
+                                {(pageInfo.AddAuthorizationHeader ? $@"headers:{{'authorization':$('#SelfPage-Excute-Action-{n}-Control-{i}-Authorization').val()}}," : "")}
+                                success:function(res){{
+                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html(JSON.stringify(res));
+                                }},
+                                error:function(error){{
+                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html(JSON.stringify(error));
+                                }},
+                            }});
+                        }});
+                    ");
+                    n++;
+                });
+                i++;
+            });
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 控制控制器下的Actions是否显示 JS
+        /// </summary>
+        /// <param name="resPageInfo"></param>
+        /// <returns></returns>
+        private static string Div_Actions_Show(ResPageInfo resPageInfo)
+        {
+            StringBuilder sb = new StringBuilder();
+            int i = 1;
+            sb.Append($@" $(""div[id^='SelfPage-Actions-Control']"").hide(); ");
+            resPageInfo.Controllers.ForEach(control =>
+            {
+                sb.Append($@" 
+                        $('#SelfPage-Control-Span-{i}').click(function(){{
+                            if($('#SelfPage-Actions-Control-{i}').is(':visible')){{ 
+                                $('#SelfPage-Control-Span-{i}').attr('class','glyphicon glyphicon-chevron-right');
+                                $('#SelfPage-Actions-Control-{i}').hide();
+                            }}else{{
+                                $('#SelfPage-Control-Span-{i}').attr('class','glyphicon glyphicon-chevron-down');
+                                $('#SelfPage-Actions-Control-{i}').show();
+                            }}
+                        }}); 
+                ");
+                i++;
+            });
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// 完成控制器信息的加载
         /// </summary>
         /// <param name="resPageInfo"></param>
         /// <returns></returns>
-        private static string Div_Controllers_Get(ResPageInfo resPageInfo)
+        private static string Div_Controllers_Get(ResPageInfo resPageInfo, SelfPageInfo pageInfo)
         {
             StringBuilder sb = new StringBuilder();
             int i = 1;
             resPageInfo.Controllers.ForEach(control =>
             {
-                sb.Append($@" <div id='SelfPage-Control-{i}' class='SelfPage-Control'>{control.ControllerName}<br/>{control.Discribetion}</div> ");
+                sb.Append($@" <div id='SelfPage-Control-{i}' class='SelfPage-Control'>{control.ControllerName}<span style='margin:0 50px;'>{control.Discribetion}</span><span id='SelfPage-Control-Span-{i}' style='float:right;margin-right:10px;' class='glyphicon glyphicon-chevron-right' aria-hidden='true'></span> ");
+                sb.Append($@" <div id='SelfPage-Actions-Control-{i}'> ");
+                int n = 1;
+                control.Actions.ForEach(action =>
+                {
+                    sb.Append($@" <div id='SelfPage-Action-{n}-Control-{i}' class='SelfPage-Action'>{GetActionRequestTypeSpan(action.RequestType)}{action.RequestPath}{GetActionDescribtionSpan(action.DescribeTion)}<button class='SelfPage-Action-Span'><span id='SelfPage-Action-Span-{n}-Control-{i}' >打开测试</span></button> ");
+                    sb.Append($@" <div id='SelfPage-Bodys-Action-{n}-Control-{i}' class='SelfPage-Action-Body'> ");
+
+                    if (pageInfo.AddAuthorizationHeader)
+                    {
+                        sb.Append($@" <lable>Authorization：</lable><input id='SelfPage-Excute-Action-{n}-Control-{i}-Authorization'><br/> ");
+                    }
+                    sb.Append($@" <button  id='SelfPage-ExcuteButton-Action-{n}-Control-{i}'>执行测试</button> ");
+                    sb.Append($@" <div>预计返回结果：</div><div>{action.ReturnJsonStr}</div> ");
+                    sb.Append($@" <div>实际返回结果：</div><div id='SelfPage-ExcuteReturn-Action-{n}-Control-{i}'></div> ");
+
+                    sb.Append($@"</div>"); //end bodys
+                    sb.Append($@" </div> "); //end action
+                    n++;
+                });
+                sb.Append($@"</div>"); //end control-actions
+                sb.Append($@"</div>"); //end control
                 i++;
             });
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 获取action的描述控件
+        /// </summary>
+        /// <param name="describeTion"></param>
+        /// <returns></returns>
+        private static object GetActionDescribtionSpan(string describeTion)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($@" <span style='margin:0 50px;'>{describeTion}</span> ");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 获取action的请求方式控件
+        /// </summary>
+        /// <param name="requestType"></param>
+        /// <returns></returns>
+        private static string GetActionRequestTypeSpan(RequestType requestType)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (requestType == RequestType.HttpGet)
+            {
+                sb.Append($@" <span style='color:green;margin-right:50px;'>{requestType}</span> ");
+            }
+            else
+            {
+                sb.Append($@" <span style='color:red;margin-right:50px;'>{requestType}</span> ");
+            }
+
             return sb.ToString();
         }
 
@@ -216,7 +382,7 @@ namespace SelfPage_Service.PageSrc
         /// </summary>
         /// <param name="realyGroups"></param>
         /// <returns></returns>
-        private static string Select_Group_Get(ResPageInfo resPageInfo, List<string> realyGroups)
+        private static string Select_Group_Get(ResPageInfo resPageInfo, List<string> realyGroups, SelfPageInfo pageInfo)
         {
             StringBuilder sb = new StringBuilder();
             realyGroups.ForEach(group =>
@@ -232,7 +398,7 @@ namespace SelfPage_Service.PageSrc
             });
             sb.Append($@"
                 $('#SelfPage-Group').change(function(){{
-                    window.location=window.origin+'/selfpage/'+$(this).val(); 
+                    window.location=window.origin+'{pageInfo.EndPointPath}/'+$(this).val(); 
                 }});
             ");
             return sb.ToString();
