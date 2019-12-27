@@ -4,6 +4,7 @@ using SelfPage_TestWebAPI.Attribute;
 using SelfPage_TestWebAPI.Mode;
 using System;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace SelfPage_TestWebAPI.Controllers.V1
 {
@@ -20,9 +21,9 @@ namespace SelfPage_TestWebAPI.Controllers.V1
         /// <returns></returns>
         [HttpGet("testmsg")]
         [AllowAnonymous]
-        public string GetTestToken()
+        public async Task<string> GetTestToken()
         {
-            return "this is a test msg,but is not used!";
+            return "123";
         }
 
         /// <summary>

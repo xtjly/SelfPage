@@ -65,7 +65,7 @@ namespace SelfPage_Service.Service
                         {
                             appBuilder.Run(async context =>
                             {
-                                string resStr = HtmlInfo.GetHtmlPageInfo(resPageInfo, realyGroups);
+                                string resStr = HtmlInfo.GetHtmlPageInfo(resPageInfo, realyGroups, pageInfo);
                                 await ResponseStr(context.Response, resStr);
                             });
                         }

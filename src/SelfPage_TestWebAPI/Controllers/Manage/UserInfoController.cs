@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SelfPage_TestWebAPI.Controllers.Manage
 {
@@ -13,7 +14,7 @@ namespace SelfPage_TestWebAPI.Controllers.Manage
         [HttpGet("help")]
         [Route("")]
         [AllowAnonymous]
-        public string GetHelp()
+        public async Task<string> GetHelp()
         {
             return "this is origin/manage/userinfo api's help return string!";
         }

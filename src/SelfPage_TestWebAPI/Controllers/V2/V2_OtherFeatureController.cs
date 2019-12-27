@@ -14,6 +14,10 @@ namespace SelfPage_TestWebAPI.Controllers.V2
     [ApiController]
     public class V2_OtherFeatureController : ControllerBase
     {
-
+        [HttpGet("get")]
+        public string GetStr(string str, int num)
+        {
+            return str + "|" + num;
+        }
     }
 }
