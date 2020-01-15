@@ -261,7 +261,7 @@ namespace SelfPage_Service.PageSrc
                                 type:'{(action.RequestType == RequestType.HttpGet ? "get" : "post")}',
                                 dataType:'json',
 	                            contentType: 'application/json',
-	                            url: window.origin + '{action.RequestPath}',
+	                            url: window.origin + '{action.RequestPath}'+'?',
                                 {(pageInfo.AddAuthorizationHeader ? $@"headers:{{'authorization':$('#SelfPage-Excute-Action-{n}-Control-{i}-Authorization').val()}}," : "")}
                                 success:function(res){{
                                     $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html(JSON.stringify(res));
@@ -325,7 +325,10 @@ namespace SelfPage_Service.PageSrc
                 {
                     sb.Append($@" <div id='SelfPage-Action-{n}-Control-{i}' class='SelfPage-Action'>{GetActionRequestTypeSpan(action.RequestType)}{action.RequestPath}{GetActionDescribtionSpan(action.DescribeTion)}<button class='SelfPage-Action-Span'><span id='SelfPage-Action-Span-{n}-Control-{i}' >打开测试</span></button> ");
                     sb.Append($@" <div id='SelfPage-Bodys-Action-{n}-Control-{i}' class='SelfPage-Action-Body'> ");
-
+                    action.RequestParameters.ForEach(param =>
+                    {
+                        sb.Append($@" <lable>【{param.FromType.ToString()}】 【{param.DataType.ToString()}】 {param.DataName}：</lable><input id='SelfPage-Excute-Action-{n}-Control-{i}-{param.DataName}' val='{param.DefaultValue}'><br/> ");
+                    });
                     if (pageInfo.AddAuthorizationHeader)
                     {
                         sb.Append($@" <lable>Authorization：</lable><input id='SelfPage-Excute-Action-{n}-Control-{i}-Authorization'><br/> ");
