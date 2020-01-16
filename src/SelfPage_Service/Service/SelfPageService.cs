@@ -108,7 +108,7 @@ namespace SelfPage_Service.Service
                             action.RequestParameters = GetMethodParameters(method);
                             action.ReturnJsonStr = GetMethodReturnObjStr(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
-                            string actionRoute = method.GetCustomAttribute<HttpGetAttribute>().Template ?? method.GetCustomAttribute<RouteAttribute>().Template;
+                            string actionRoute = method.GetCustomAttribute<HttpGetAttribute>()?.Template ?? method.GetCustomAttribute<RouteAttribute>()?.Template ?? "";
                             action.RequestType = RequestType.HttpGet;
                             action.RequestPath = $"/{controllerRoute}/{actionRoute}";
                             actionInfos.Add(action);
@@ -119,7 +119,7 @@ namespace SelfPage_Service.Service
                             action.RequestParameters = GetMethodParameters(method);
                             action.ReturnJsonStr = GetMethodReturnObjStr(method);
                             action.DescribeTion = GetActionDisCribeTionFromXmlInfo(item.Name, method.Name, xmlInfo);
-                            string actionRoute = method.GetCustomAttribute<HttpPostAttribute>().Template ?? method.GetCustomAttribute<RouteAttribute>().Template;
+                            string actionRoute = method.GetCustomAttribute<HttpPostAttribute>()?.Template ?? method.GetCustomAttribute<RouteAttribute>()?.Template ?? "";
                             action.RequestType = RequestType.HttpPost;
                             action.RequestPath = $"/{controllerRoute}/{actionRoute}";
                             actionInfos.Add(action);
