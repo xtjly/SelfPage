@@ -63,6 +63,9 @@ namespace SelfPage_Service.PageSrc
             color:black;
             font-size:20px;
         }}
+        .ActionResult{{
+            word-wrap:break-word;
+        }}
     </style>
 </head>
 <body>
@@ -261,8 +264,9 @@ namespace SelfPage_Service.PageSrc
                                 type:'{(action.RequestType == RequestType.HttpGet ? "get" : "post")}',
                                 dataType:'json',
 	                            contentType: 'application/json',
-	                            url: window.origin + '{action.RequestPath}'+'?',
+	                            url: window.origin + '{action.RequestPath}'+'?'{GetQueryStr(action.RequestParameters, n, i)},
                                 {(pageInfo.AddAuthorizationHeader ? $@"headers:{{'authorization':$('#SelfPage-Excute-Action-{n}-Control-{i}-Authorization').val()}}," : "")}
+                                {GetFromBodyDate(action.RequestParameters, n, i)}
                                 success:function(res){{
                                     $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html(JSON.stringify(res));
                                 }},
@@ -277,6 +281,48 @@ namespace SelfPage_Service.PageSrc
                 i++;
             });
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// 组装FromBody查询条件
+        /// </summary>
+        /// <param name="requestParameters"></param>
+        /// <param name="n"></param>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        private static string GetFromBodyDate(List<ParameterInfo> requestParameters, int n, int i)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (requestParameters.Any(param => param.FromType == FromEnumType.FromBody))
+            {
+                sb.Append(@" data: JSON.stringify({ ");
+                requestParameters.ForEach(param =>
+                {
+                    sb.Append($@" {param.DataName}:$('#SelfPage-Excute-Action-{n}-Control-{i}-{param.DataName}').val() , ");
+                });
+                sb.Append(@" }), ");
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 组装FromQuery查询条件
+        /// </summary>
+        /// <param name="requestParameters"></param>
+        /// <param name="n"></param>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        private static string GetQueryStr(List<ParameterInfo> requestParameters, int n, int i)
+        {
+            string sb = "";
+            requestParameters.ForEach(param =>
+            {
+                if (param.FromType == FromEnumType.FromQuery)
+                {
+                    sb += $@" +  '{param.DataName}=' + $('#SelfPage-Excute-Action-{n}-Control-{i}-{param.DataName}').val() + '&' ";
+                }
+            });
+            return sb;
         }
 
         /// <summary>
@@ -335,7 +381,7 @@ namespace SelfPage_Service.PageSrc
                     }
                     sb.Append($@" <button  id='SelfPage-ExcuteButton-Action-{n}-Control-{i}'>执行测试</button> ");
                     sb.Append($@" <div>预计返回结果：</div><div>{action.ReturnJsonStr}</div> ");
-                    sb.Append($@" <div>实际返回结果：</div><div id='SelfPage-ExcuteReturn-Action-{n}-Control-{i}'></div> ");
+                    sb.Append($@" <div>实际返回结果：</div><div id='SelfPage-ExcuteReturn-Action-{n}-Control-{i}' class='ActionResult'></div> ");
 
                     sb.Append($@"</div>"); //end bodys
                     sb.Append($@" </div> "); //end action

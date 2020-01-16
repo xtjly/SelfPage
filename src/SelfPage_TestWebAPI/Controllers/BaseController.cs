@@ -23,7 +23,7 @@ namespace SelfPage_TestWebAPI.Controllers
                 try
                 {
                     var headers = Request.Headers;
-                    var user = User.Identities as ClaimsIdentity;
+                    var user = User.Identity as ClaimsIdentity;
                     var token = new TokenInfo();
                     if (user != null)
                     {
