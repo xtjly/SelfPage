@@ -13,7 +13,7 @@
     
 ## 快速开始   如何使用接口文档描述服务  
 1、在你的 Asp.Net Core 2.2 WebApi项目中添加nuget包`SelfPage_Service`引用，用VS在线搜索nuget包即可。  
-2、在 WebApi项目的StartUp.cs文件中使用[示例代码](,/src/SelfPage_TestWebAPI/Startup.cs)：  
+2、在 WebApi项目的StartUp.cs文件中使用[示例代码](./src/SelfPage_TestWebAPI/Startup.cs)：  
 ```
 app.UseSelfPage(
                 //SelfPage配置信息
