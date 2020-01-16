@@ -5,4 +5,6 @@
 [src/SelfPage_TestWebAPI](./src/SelfPage_TestWebAPI) `服务端测试WepAPI项目`  
 
 ## 帮助
-阅读 [帮助文档](./README.md) 方便您快速了解。
+阅读 [帮助文档](./README.md) 方便您快速了解。  
+  
+接口文档服务[src/SelfPage_Service](./src/SelfPage_Service) Nuget包所在地址：[SelfPage.Nuget](https://www.nuget.org/packages/SelfPage_Service/)`https://www.nuget.org/packages/SelfPage_Service/`
