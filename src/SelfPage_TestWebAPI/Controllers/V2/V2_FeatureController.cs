@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SelfPage_TestWebAPI.Attribute;
+using SelfPage_TestWebAPI.Const;
 using SelfPage_TestWebAPI.Mode;
+using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SelfPage_TestWebAPI.Controllers.V2
@@ -12,6 +16,27 @@ namespace SelfPage_TestWebAPI.Controllers.V2
     [ApiController]
     public class V2_FeatureController : BaseController
     {
+        /// <summary>
+        /// 获取token
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("token")]
+        [AllowAnonymous]
+        public ResResult<string> Token()
+        {
+            return new ResResult<string>
+            {
+                Code = 1,
+                IsSuccess = true,
+                Data = CreatToken(new Claim[] {
+                    new Claim(TokenConst.SelfUserId , "2020"),
+                    new Claim(TokenConst.SelfUserName , "SelfPage"),
+                    new Claim(TokenConst.SelfCreatTime , DateTime.Now.ToString("yyy-MM-dd HH:mm:ss:ms"))
+                }),
+                Msg = "这是返回的token"
+            };
+        }
+
         /// <summary>
         /// 是否为自己的名称
         /// </summary>

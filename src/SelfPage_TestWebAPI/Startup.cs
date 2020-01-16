@@ -36,7 +36,7 @@ namespace SelfPage_TestWebAPI
                     ValidateAudience = true,
                     ValidAudience = "SelfPage",
                     ValidIssuer = "SelfPage",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("selfpage_key"))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("selfpagekey1234567890"))
                 };
             });
             services.AddMvc(

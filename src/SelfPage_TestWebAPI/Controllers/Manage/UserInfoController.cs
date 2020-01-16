@@ -14,9 +14,9 @@ namespace SelfPage_TestWebAPI.Controllers.Manage
         [HttpGet("help")]
         [Route("")]
         [AllowAnonymous]
-        public async Task<string> GetHelp()
+        public async Task<string> GetHelp([FromQuery]int age, [FromQuery]string name)
         {
-            return "this is origin/manage/userinfo api's help return string!";
+            return "this is origin/manage/userinfo api's help return string!   " + age + name;
         }
 
         /// <summary>

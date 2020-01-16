@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using SelfPage_TestWebAPI.Const;
 using SelfPage_TestWebAPI.Filter;
 using SelfPage_TestWebAPI.Mode;
 using SelfPage_TestWebAPI.Utilty;
@@ -22,13 +23,13 @@ namespace SelfPage_TestWebAPI.Controllers
                 try
                 {
                     var headers = Request.Headers;
-                    var user = User.Identities as ClaimsIdentity;
+                    var user = User.Identity as ClaimsIdentity;
                     var token = new TokenInfo();
                     if (user != null)
                     {
-                        token.SelfUserId = user.FindInt64(nameof(TokenInfo.SelfUserId));
-                        token.SelfUserName = user.FindFistVlaue(nameof(TokenInfo.SelfUserName));
-                        token.SelfCreatTime = user.FindFirstTime(nameof(TokenInfo.SelfCreatTime));
+                        token.SelfUserId = user.FindInt64(TokenConst.SelfUserId);
+                        token.SelfUserName = user.FindFistVlaue(TokenConst.SelfUserName);
+                        token.SelfCreatTime = user.FindFirstTime(TokenConst.SelfCreatTime);
                     }
                     return token;
                 }
@@ -41,13 +42,13 @@ namespace SelfPage_TestWebAPI.Controllers
 
         protected string CreatToken(System.Security.Claims.Claim[] claim)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("selfpage_key"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("selfpagekey1234567890"));
             var credis = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
                 issuer: "SelfPage"
                 , audience: "SelfPage"
                 , claims: claim
-                , notBefore: DateTime.Now
+                , notBefore: DateTime.Now.AddMinutes(-5)
                 , expires: DateTime.Now.AddDays(1)
                 , signingCredentials: credis
                 );

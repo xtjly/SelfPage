@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SelfPage_TestWebAPI.Attribute;
+using SelfPage_TestWebAPI.Const;
 using SelfPage_TestWebAPI.Mode;
 using System;
 using System.Security.Claims;
@@ -39,9 +40,9 @@ namespace SelfPage_TestWebAPI.Controllers.V1
                 Code = 1,
                 IsSuccess = true,
                 Data = CreatToken(new Claim[] {
-                    new Claim(nameof(TokenInfo.SelfUserId) , "2020"),
-                    new Claim(nameof(TokenInfo.SelfUserName) , "SelfPage"),
-                    new Claim(nameof(TokenInfo.SelfCreatTime) , DateTime.Now.ToString("YYYY-MM-DD HH:mm:ss:ms"))
+                    new Claim(TokenConst.SelfUserId , "2020"),
+                    new Claim(TokenConst.SelfUserName , "SelfPage"),
+                    new Claim(TokenConst.SelfCreatTime , DateTime.Now.ToString("yyy-MM-dd HH:mm:ss:ms"))
                 }),
                 Msg = "这是返回的token"
             };
