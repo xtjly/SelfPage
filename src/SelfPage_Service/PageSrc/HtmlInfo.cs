@@ -268,10 +268,10 @@ namespace SelfPage_Service.PageSrc
                                 {(pageInfo.AddAuthorizationHeader ? $@"headers:{{'authorization':$('#SelfPage-Excute-Action-{n}-Control-{i}-Authorization').val()}}," : "")}
                                 {GetFromBodyDate(action.RequestParameters, n, i)}
                                 success:function(res){{
-                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html(JSON.stringify(res));
+                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html('<pre style=""background-color: #8080803d;"">'+JSON.stringify(res, null, 4)+'</pre>');
                                 }},
                                 error:function(error){{
-                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html(JSON.stringify(error));
+                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html('<pre style=""background-color: #8080803d;"">' + JSON.stringify(error, null, 4)+'</pre>');
                                 }},
                             }});
                         }});
@@ -280,6 +280,34 @@ namespace SelfPage_Service.PageSrc
                 });
                 i++;
             });
+
+            //得到js对象的json数据格式化展示字符串 - 没用到
+            sb.Append(@"
+                function formatJson (msg) {
+                    var rep = '~';
+                    var jsonStr = JSON.stringify(msg, null, rep)
+                    var str = '';
+                    for (var i = 0; i < jsonStr.length; i++) {
+                    var text2 = jsonStr.charAt(i)
+                    if (i > 1) {
+                    var text = jsonStr.charAt(i - 1)
+                    if (rep != text && rep == text2) {
+                    str += '<br/>'
+                    }
+                    }
+                    str += text2;
+                    }
+                    jsonStr = '';
+                    for (var i = 0; i < str.length; i++) {
+                    var text = str.charAt(i);
+                    if (rep == text) { jsonStr += '&nbsp;&nbsp;&nbsp;&nbsp;' } else {
+                    jsonStr += text;
+                    }
+                    if (i == str.length - 2) { jsonStr += '<br/>' }
+                    }
+                    return jsonStr;
+                }
+            ");
             return sb.ToString();
         }
 
