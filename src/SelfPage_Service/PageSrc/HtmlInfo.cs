@@ -268,10 +268,10 @@ namespace SelfPage_Service.PageSrc
                                 {(pageInfo.AddAuthorizationHeader ? $@"headers:{{'authorization':$('#SelfPage-Excute-Action-{n}-Control-{i}-Authorization').val()}}," : "")}
                                 {GetFromBodyDate(action.RequestParameters, n, i)}
                                 success:function(res){{
-                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html('<pre style=""background-color: #8080803d;"">'+JSON.stringify(res, null, 4)+'</pre>');
+                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html('<pre style=""background-color: #8080803d;color:black;font-weight:bold;""><code>'+JSON.stringify(res, null, 4)+'</code></pre>');
                                 }},
                                 error:function(error){{
-                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html('<pre style=""background-color: #8080803d;"">' + JSON.stringify(error, null, 4)+'</pre>');
+                                    $('#SelfPage-ExcuteReturn-Action-{n}-Control-{i}').html('<pre style=""background-color: #8080803d;color:black;font-weight:bold;""><code>' + JSON.stringify(error, null, 4)+'</code></pre>');
                                 }},
                             }});
                         }});
